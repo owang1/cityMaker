@@ -29,6 +29,7 @@ def createUI():
     cmds.button(label = "Generate City", command = partial(generate, minHeight, maxHeight, buildingGap, xDim, yDim))
     cmds.button(label = "Demolish City", command = partial(delete))
     
+    
      # Show window
     cmds.showWindow(window)
     
@@ -52,11 +53,21 @@ def generate(minHeight, maxHeight, buildingGap, xDim, yDim, *args):
         while z < yDim:
             # Get random height within range
             height = random.randrange(minHeight, maxHeight)
+            
+            # Choice of building type
+            buildingType = random.randrange(0, 10)
 	
             buildingWidth = random.randrange(1, 3)            
 
-            cube = cmds.polyCube(w = buildingWidth, d = buildingWidth, h = height)
-            cmds.move(x + buildingWidth/2 + buildingGap,height/2, z + buildingWidth/2 + buildingGap)
+            if buildingType > 0 and buildingType < 9:
+                # PolyCube option
+                cube = cmds.polyCube(w = buildingWidth, d = buildingWidth, h = height)
+            else:
+                # Cylinder option
+                subdiv = random.randrange(3, 12)
+                polyCylinder = cmds.polyCylinder(radius=buildingWidth/2, h = height, sx = subdiv)
+            
+            cmds.move(x + buildingWidth/2 + buildingGap, height/2, z + buildingWidth/2 + buildingGap)
             z += buildingWidth + buildingGap
         x += buildingWidth + buildingGap
 
