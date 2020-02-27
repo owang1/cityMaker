@@ -25,30 +25,30 @@ def createUI():
     cmds.text(label="Y Dimension")
     yDim = cmds.textField(tx = 20)
         
-    cylinder = cmds.checkBox(label="Cylinders", value=False, onc="cylinder=1", ofc="cylinder=0")
-    antenna = cmds.checkBox(label="Antennas", value=False, onc="antenna=1", ofc="antenna=0")
+    cylinderOption = cmds.checkBox(label="Cylinders", value=False, onc="cylinderOption=1", ofc="cylinderOption=0")
+    antennaOption = cmds.checkBox(label="Antennas", value=False, onc="antennaOption=1", ofc="antennaOption=0")
     
 
-    cmds.button(label = "Generate City", command = partial(generate, minHeight, maxHeight, buildingGap, xDim, yDim, cylinder, antenna))
+    cmds.button(label = "Generate City", command = partial(generate, minHeight, maxHeight, buildingGap, xDim, yDim, cylinderOption, antennaOption))
     cmds.button(label = "Demolish City", command = partial(delete))
     
     
      # Show window
     cmds.showWindow(window)
     
-def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinder, antenna, *args):
+def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinderOption, antennaOption, *args):
         
     minHeight = int(cmds.intSliderGrp(minHeight, q=True, value=True))
     maxHeight = int(cmds.intSliderGrp(maxHeight, q=True, value=True))
     buildingGap = int(cmds.floatSliderGrp(buildingGap, q=True, value=True))
     xDim = int(cmds.textField(xDim, q=True, text=True))
     yDim = int(cmds.textField(yDim, q=True, text=True))
-    cylinder = int(cmds.checkBox(cylinder, q=True, value=True))
-    antenna = int(cmds.checkBox(antenna, q=True, value=True))
+    cylinderOption = int(cmds.checkBox(cylinderOption, q=True, value=True))
+    antennaOption = int(cmds.checkBox(antennaOption, q=True, value=True))
    
     # Set polyplane
-    cmds.polyPlane(width = xDim, height = yDim)
-    cmds.move(xDim/2, 0, yDim/2)
+    # cmds.polyPlane(width = xDim, height = yDim)
+    # cmds.move(xDim/2, 0, yDim/2)
     
     x = 0
     
@@ -59,7 +59,7 @@ def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinder, antenna, *
             height = random.randrange(minHeight, maxHeight)
             
             # Choice of building type, accounting for if cylinder checkbox is checked
-            if cylinder == 1:
+            if cylinderOption == 1:
                 buildingType = random.randrange(0, 10)
             else:
                 buildingType = 1
@@ -71,11 +71,13 @@ def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinder, antenna, *
                 cube = cmds.polyCube(w = buildingWidth, d = buildingWidth, h = height)
                 cmds.move(x + buildingWidth/2 + buildingGap, height/2, z + buildingWidth/2 + buildingGap)
                 
-		# Antenna option
-                isAntenna = random.randrange(0, 10)
-                if antenna == 1 and isAntenna < 2:
-                    antenna = cmds.polyCone(r=.2, h = 2)
-                    cmds.move(x + buildingWidth/2 + buildingGap, height, z + buildingWidth/2 + buildingGap)
+
+                if antennaOption == 1:
+                    # Antenna option
+                    isAntenna = random.randrange(0, 10)
+                    if isAntenna < 2:
+                        antenna = cmds.polyCone(r=.2, h = 2)
+                        cmds.move(x + buildingWidth/2 + buildingGap, height, z + buildingWidth/2 + buildingGap)
 
             else:
                 # Cylinder option
@@ -87,7 +89,7 @@ def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinder, antenna, *
 
 # Demolish the city
 def delete(*args):
-    allObjects = cmds.ls("pCube*", "pPlane1", "pCylinder*")
+    allObjects = cmds.ls("pCube*", "pPlane1", "pCylinder*", "pCone*")
     for object in allObjects:
         cmds.delete(object)
     
