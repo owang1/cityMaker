@@ -4,6 +4,38 @@ import maya.cmds as cmds
 import random
 from functools import partial
 
+# Building class
+class Building(object):
+    def __init__(self, width, height):
+        self.height = height
+        self.width = width
+        
+    # Print information about the building
+    def info(self):
+        print("Width: %s\nHeight: %s"%(self.width, self.height))
+        
+    # Move method
+    def moveBuilding(self, x, y, z):
+        cmds.move(x, y, z)
+
+# Child class: polycube building
+class CubeBuilding(Building):
+    def __init__(self, width, height):
+        super(CubeBuilding, self).__init__(width, height)
+        self.polyCube = cmds.polyCube(w = self.width, d = self.width, h = self.height)
+
+# Child class: cylinder building
+class CylinderBuilding(Building):
+    def __init__(self, width, height, subdivisions):
+        super(CylinderBuilding, self).__init__(width, height)
+        self.subdivisions = subdivisions
+        self.polyCylinder = cmds.polyCylinder(radius=self.width/2, h = self.height, sx = self.subdivisions)
+    
+    # Print additional information (subdivisions)
+    def info(self):
+        super(CylinderBuilding, self).info()
+        print("Subdivisions: %s\n"%(self.subdivisions))
+
 def createUI():
     
     windowID = "myWindowID"
@@ -47,8 +79,8 @@ def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinderOption, ante
     antennaOption = int(cmds.checkBox(antennaOption, q=True, value=True))
    
     # Set polyplane
-    # cmds.polyPlane(width = xDim, height = yDim)
-    # cmds.move(xDim/2, 0, yDim/2)
+    cmds.polyPlane(width = xDim, height = yDim)
+    cmds.move(xDim/2, 0, yDim/2)
     
     x = 0
     
@@ -68,9 +100,8 @@ def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinderOption, ante
 
             if buildingType > 0 and buildingType < 9:
                 # PolyCube option
-                cube = cmds.polyCube(w = buildingWidth, d = buildingWidth, h = height)
-                cmds.move(x + buildingWidth/2 + buildingGap, height/2, z + buildingWidth/2 + buildingGap)
-                
+                cube = CubeBuilding(buildingWidth, height)
+                cube.moveBuilding(x + buildingWidth/2 + buildingGap, height/2, z + buildingWidth/2 + buildingGap)
 
                 if antennaOption == 1:
                     # Antenna option
@@ -82,8 +113,8 @@ def generate(minHeight, maxHeight, buildingGap, xDim, yDim, cylinderOption, ante
             else:
                 # Cylinder option
                 subdiv = random.randrange(3, 12)
-                polyCylinder = cmds.polyCylinder(radius=buildingWidth/2, h = height, sx = subdiv)
-                cmds.move(x + buildingWidth/2 + buildingGap, height/2, z + buildingWidth/2 + buildingGap)
+                cylinder = CylinderBuilding(buildingWidth, height, subdiv)
+                cylinder.moveBuilding(x + buildingWidth/2 + buildingGap, height/2, z + buildingWidth/2 + buildingGap)
             z += buildingWidth + buildingGap
         x += buildingWidth + buildingGap
 
